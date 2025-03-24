@@ -1,26 +1,23 @@
 const WebSocket = require('ws');
 const port = process.env.PORT || 8080;
 const wss = new WebSocket.Server({ port });
-
-const clients = new Set();
-
 wss.on('connection', (ws) => {
-    clients.add(ws);
-    console.log('New user connected. Total:', clients.size);
-
+    console.log('New user connected');
     ws.on('message', (message) => {
-        console.log('Received:', message);
-        clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
+        try {
+            const data = JSON.parse(message); // Expecting { lat, lng, type }
+            console.log('Received:', data);
+            wss.clients.forEach((client) => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(data));
+                }
+            });
+        } catch (e) {
+            console.error('Error parsing message:', e);
+        }
     });
-
     ws.on('close', () => {
-        clients.delete(ws);
-        console.log('User disconnected. Total:', clients.size);
+        console.log('User disconnected');
     });
 });
-
-console.log(`Server running on port ${port}`);
+console.log(`WebSocket server running on port ${port}`);
