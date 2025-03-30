@@ -1,2 +1,2 @@
 # Sweeper Taxis Server
-This is the PeerJS server for the Sweeper Taxis App.
+This is the WebSocket (was PeerJS) server for the Sweeper Taxis App.
