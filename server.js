@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: process.env.PORT || 8080 });
 const clients = new Map();
-const taxiGroups = new Map(); // Map groupId to array of {id, lat, lng, ws}
+const taxiGroups = new Map();
 let groupCounter = 1;
 
 console.log("Server starting...");
@@ -54,4 +54,17 @@ wss.on('connection', (ws) => {
             const data = JSON.parse(message);
             if (data.type === 'register') {
                 clientId = data.id;
-                if (!
+                if (!clientId || !['taxi', 'commuter'].includes(data.userType)) {
+                    ws.send(JSON.stringify({ type: 'error', message: 'Invalid registration' }));
+                    ws.close(1000, 'Invalid registration');
+                    return;
+                }
+                clients.set(clientId, { ws, userType: data.userType });
+                console.log(`Client ${clientId} registered as ${data.userType}`);
+
+                if (data.userType === 'taxi') {
+                    const groupId = assignTaxiToGroup(clientId, data.lat || 0, data.lng || 0, ws, data.userType);
+                    if (groupId) {
+                        ws.send(JSON.stringify({ type: 'groupAssignment', id: clientId, taxiGroupId: groupId }));
+                    } else {
+                        ws.send(JSON.stringify({ type: 'groupAssignment', id: clientId, error:
