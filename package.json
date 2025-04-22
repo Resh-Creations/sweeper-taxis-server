@@ -1,15 +1,11 @@
 {
-  "name": "sweeper-taxis-server",
+  "name": "taxi-eyes-signaling",
   "version": "1.0.0",
-  "main": "server.js",
+  "dependencies": {
+    "ws": "^8.18.0",
+    "@supabase/supabase-js": "^2.45.4"
+  },
   "scripts": {
     "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "ws": "^8.17.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
